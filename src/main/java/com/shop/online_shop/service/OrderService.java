@@ -1,3 +1,4 @@
+
 package com.shop.online_shop.service;
 
 import com.shop.online_shop.dto.OrderItemResponse;
@@ -35,61 +36,52 @@ public class OrderService {
     @Transactional
     public OrderResponse checkout(Long userId, String shippingAddress) {
 
-        // 1. Kiểm tra địa chỉ giao hàng
         if (shippingAddress == null || shippingAddress.trim().isEmpty()) {
-            throw new RuntimeException("Địa chỉ giao hàng không được để trống!");
+            throw new RuntimeException("Shipping address cannot be empty!");
         }
 
-        // 2. Tìm người dùng
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy người dùng!"));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        // 3. Tìm giỏ hàng
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy giỏ hàng!"));
+                .orElseThrow(() -> new RuntimeException("Cart not found!"));
 
-        // 4. Kiểm tra giỏ hàng rỗng
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new RuntimeException("Giỏ hàng đang trống!");
+            throw new RuntimeException("Cart is empty!");
         }
 
-        // 5. Tạo đơn hàng
         Order order = new Order();
         order.setUser(user);
         order.setShippingAddress(shippingAddress);
         order.setStatus("PENDING");
 
         BigDecimal totalAmount = BigDecimal.ZERO;
-
         List<OrderItemResponse> responseItems = new ArrayList<>();
 
-        // 6. Duyệt từng sản phẩm trong giỏ
         for (CartItem cartItem : new ArrayList<>(cart.getItems())) {
 
             Product product = productRepository.findById(
                     cartItem.getProduct().getId()
-            ).orElseThrow(() -> new RuntimeException(
-                    "Không tìm thấy sản phẩm!"));
+            ).orElseThrow(() -> new RuntimeException("Product not found!"));
 
             Integer quantity = cartItem.getQuantity();
 
-            // Kiểm tra tồn kho
+            if (quantity == null || quantity <= 0) {
+                throw new RuntimeException("Invalid product quantity!");
+            }
+
             if (product.getQuantity() == null ||
                     product.getQuantity() < quantity) {
                 throw new RuntimeException(
-                        "Sản phẩm " + product.getName()
-                                + " không đủ số lượng trong kho!");
+                        "Insufficient stock for product: " + product.getName()
+                );
             }
 
-            // Tính thành tiền
             BigDecimal subtotal = product.getPrice()
                     .multiply(BigDecimal.valueOf(quantity));
 
             totalAmount = totalAmount.add(subtotal);
 
-            // Tạo chi tiết đơn hàng
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -98,11 +90,9 @@ public class OrderService {
 
             order.getItems().add(orderItem);
 
-            // Trừ tồn kho
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
-            
-            // Chuẩn bị dữ liệu trả về
+
             responseItems.add(new OrderItemResponse(
                     product.getId(),
                     product.getName(),
@@ -112,16 +102,13 @@ public class OrderService {
             ));
         }
 
-        // 7. Lưu tổng tiền
         order.setTotalAmount(totalAmount);
 
-        // 8. Lưu đơn hàng và chi tiết đơn hàng
         Order savedOrder = orderRepository.save(order);
 
-        // 9. Xóa sản phẩm trong giỏ hàng
         cart.getItems().clear();
+        cartRepository.save(cart);
 
-        // 10. Trả về kết quả
         return new OrderResponse(
                 savedOrder.getId(),
                 user.getId(),
@@ -132,50 +119,46 @@ public class OrderService {
                 responseItems
         );
     }
-    
+
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrderHistory(Long userId) {
 
         userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy người dùng!"
-                ));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        List<Order> orders = orderRepository
-                .findByUserIdOrderByOrderDateDesc(userId);
+        List<Order> orders =
+                orderRepository.findByUserIdOrderByOrderDateDesc(userId);
 
         List<OrderResponse> responses = new ArrayList<>();
 
         for (Order order : orders) {
 
-            List<OrderItemResponse> itemResponses = new ArrayList<>();
+            List<OrderItemResponse> items = new ArrayList<>();
 
             for (OrderItem item : order.getItems()) {
 
-                BigDecimal subtotal = item.getUnitPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity()));
-
-                itemResponses.add(new OrderItemResponse(
+                items.add(new OrderItemResponse(
                         item.getProduct().getId(),
                         item.getProduct().getName(),
                         item.getQuantity(),
                         item.getUnitPrice(),
-                        subtotal
+                        item.getUnitPrice().multiply(
+                                BigDecimal.valueOf(item.getQuantity())
+                        )
                 ));
             }
 
             responses.add(new OrderResponse(
                     order.getId(),
-                    order.getUser().getId(),
+                    userId,
                     order.getOrderDate(),
                     order.getTotalAmount(),
                     order.getStatus(),
                     order.getShippingAddress(),
-                    itemResponses
+                    items
             ));
         }
 
         return responses;
     }
-
 }
