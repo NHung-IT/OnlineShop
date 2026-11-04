@@ -29,14 +29,18 @@ public class OrderController {
     }
 
     private boolean isOwner(Long userId, Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
         User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy người dùng!"));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
         return user.getId().equals(userId);
     }
 
-    @PostMapping("/{userId}/checkout")
+    @PostMapping("/checkout/{userId}")
     public ResponseEntity<?> checkout(
             @PathVariable Long userId,
             @RequestBody CheckoutRequest request,
@@ -45,7 +49,7 @@ public class OrderController {
         try {
             if (!isOwner(userId, authentication)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("message", "Bạn không có quyền thực hiện thao tác này!"));
+                        .body(Map.of("message", "Access denied!"));
             }
 
             OrderResponse order = orderService.checkout(
@@ -69,7 +73,7 @@ public class OrderController {
         try {
             if (!isOwner(userId, authentication)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("message", "Bạn không có quyền xem lịch sử đơn hàng này!"));
+                        .body(Map.of("message", "Access denied!"));
             }
 
             return ResponseEntity.ok(
