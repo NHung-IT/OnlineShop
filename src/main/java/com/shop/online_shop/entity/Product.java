@@ -1,3 +1,4 @@
+
 package com.shop.online_shop.entity;
 
 import jakarta.persistence.*;
