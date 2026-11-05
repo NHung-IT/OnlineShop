@@ -1,8 +1,54 @@
 const API_URL = "/api/products";
+const CATEGORY_API_URL = "/api/categories";
+
+let categories = [];
+let categoryMap = new Map();
 
 const tableBody = document.getElementById("productTableBody");
 const productModal = document.getElementById("productModal");
 const productForm = document.getElementById("productForm");
+
+// ==============================
+// 0. QUẢN LÝ DANH MỤC
+// ==============================
+
+async function loadCategories() {
+    const categorySelect = document.getElementById("productCategoryId");
+
+    try {
+        const response = await fetch(CATEGORY_API_URL);
+
+        if (!response.ok) {
+            throw new Error("Không thể tải danh sách danh mục");
+        }
+
+        categories = await response.json();
+
+        categoryMap = new Map(
+            categories.map(category => [
+                Number(category.id),
+                category.name
+            ])
+        );
+
+        categorySelect.innerHTML = `
+            <option value="">-- Chọn danh mục --</option>
+        `;
+
+        categories.forEach(category => {
+            const option = document.createElement("option");
+
+            option.value = category.id;
+            option.textContent = category.name;
+
+            categorySelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Lỗi tải Category:", error);
+        alert(error.message);
+    }
+}
 
 let editingProductId = null;
 
@@ -47,12 +93,15 @@ function displayProducts(products) {
     products.forEach(product => {
         const row = document.createElement("tr");
 
+        const categoryName =
+            categoryMap.get(Number(product.categoryId)) || "Không xác định";
+
         const values = [
             product.id,
             product.name,
             Number(product.price).toLocaleString("vi-VN") + " đ",
             product.quantity,
-            product.categoryId
+            categoryName
         ];
 
         values.forEach(value => {
@@ -392,4 +441,9 @@ document.addEventListener("keydown", event => {
 // 9. KHỞI ĐỘNG
 // ==============================
 
-loadProducts();
+async function initializeAdmin() {
+    await loadCategories();
+    await loadProducts();
+}
+
+initializeAdmin();

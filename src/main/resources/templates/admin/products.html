@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
+
 <body>
 
     <div class="admin-container">
@@ -15,8 +17,8 @@
             <h2>Online Shop</h2>
 
             <nav>
-                <a href="#" class="active">Quản lý sản phẩm</a>
-                <a href="#">Quản lý danh mục</a>
+                <a href="/admin/products" class="active">Quản lý sản phẩm</a>
+                <a href="/admin/categories">Quản lý danh mục</a>
                 <a href="#">Quản lý đơn hàng</a>
                 <a href="#">Quản lý người dùng</a>
             </nav>
@@ -32,11 +34,7 @@
             <section class="content">
 
                 <div class="toolbar">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Tìm kiếm sản phẩm..."
-                    >
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm...">
 
                     <button id="addProductBtn">
                         + Thêm sản phẩm
@@ -44,17 +42,9 @@
                 </div>
 
                 <div class="filter">
-                    <input
-                        type="number"
-                        id="minPrice"
-                        placeholder="Giá thấp nhất"
-                    >
+                    <input type="number" id="minPrice" placeholder="Giá thấp nhất">
 
-                    <input
-                        type="number"
-                        id="maxPrice"
-                        placeholder="Giá cao nhất"
-                    >
+                    <input type="number" id="maxPrice" placeholder="Giá cao nhất">
 
                     <button id="filterBtn">Lọc</button>
                     <button id="resetBtn">Làm mới</button>
@@ -96,60 +86,34 @@
 
                     <div class="form-group">
                         <label for="productName">Tên sản phẩm</label>
-                        <input
-                            type="text"
-                            id="productName"
-                            required
-                        >
+                        <input type="text" id="productName" required>
                     </div>
 
                     <div class="form-group">
                         <label for="productDescription">Mô tả</label>
-                        <textarea
-                            id="productDescription"
-                            rows="3"
-                        ></textarea>
+                        <textarea id="productDescription" rows="3"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="productPrice">Giá sản phẩm</label>
-                        <input
-                            type="number"
-                            id="productPrice"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
+                        <input type="number" id="productPrice" min="0" step="0.01" required>
                     </div>
 
                     <div class="form-group">
                         <label for="productQuantity">Số lượng</label>
-                        <input
-                            type="number"
-                            id="productQuantity"
-                            min="0"
-                            step="1"
-                            required
-                        >
+                        <input type="number" id="productQuantity" min="0" step="1" required>
                     </div>
 
                     <div class="form-group">
                         <label for="productImageUrl">Đường dẫn hình ảnh</label>
-                        <input
-                            type="text"
-                            id="productImageUrl"
-                        >
+                        <input type="text" id="productImageUrl">
                     </div>
 
                     <div class="form-group">
-                        <label for="productCategoryId">ID danh mục</label>
-                        <input
-                            type="number"
-                            id="productCategoryId"
-                            min="1"
-                            step="1"
-                            required
-                        >
+                        <label for="productCategoryId">Danh mục</label>
+                        <select id="productCategoryId" required>
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
                     </div>
 
                     <div class="modal-actions">
@@ -171,4 +135,5 @@
 
     <script th:src="@{/js/admin.js}"></script>
 </body>
+
 </html>

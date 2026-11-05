@@ -10,4 +10,9 @@ public class AdminPageController {
     public String showProductsPage() {
         return "admin/products";
     }
+
+    @GetMapping("/admin/categories")
+    public String showCategoriesPage() {
+        return "admin/categories";
+    }
 }
