@@ -49,15 +49,16 @@ public class SecurityConfig {
 
                         // API đăng nhập và đăng ký
                         .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login")
+                                "/api/products/**",
+                                "/api/categories/**")
                         .permitAll()
 
                         // API sản phẩm
                         .requestMatchers("/api/products/**").permitAll()
 
                         // Các API khác cần xác thực
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

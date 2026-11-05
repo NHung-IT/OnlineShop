@@ -83,6 +83,90 @@
 
         </main>
 
+        <!-- Modal thêm / sửa sản phẩm -->
+        <div id="productModal" class="modal hidden">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h2 id="modalTitle">Thêm sản phẩm</h2>
+                    <button type="button" id="closeModalBtn">&times;</button>
+                </div>
+
+                <form id="productForm">
+
+                    <div class="form-group">
+                        <label for="productName">Tên sản phẩm</label>
+                        <input
+                            type="text"
+                            id="productName"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productDescription">Mô tả</label>
+                        <textarea
+                            id="productDescription"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productPrice">Giá sản phẩm</label>
+                        <input
+                            type="number"
+                            id="productPrice"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productQuantity">Số lượng</label>
+                        <input
+                            type="number"
+                            id="productQuantity"
+                            min="0"
+                            step="1"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productImageUrl">Đường dẫn hình ảnh</label>
+                        <input
+                            type="text"
+                            id="productImageUrl"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productCategoryId">ID danh mục</label>
+                        <input
+                            type="number"
+                            id="productCategoryId"
+                            min="1"
+                            step="1"
+                            required
+                        >
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelModalBtn">
+                            Hủy
+                        </button>
+
+                        <button type="submit" id="saveProductBtn">
+                            Lưu sản phẩm
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
     </div>
 
     <script th:src="@{/js/admin.js}"></script>
