@@ -1,0 +1,154 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #333;
+}
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #1e293b;
+    color: white;
+    padding: 25px 15px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 13px;
+    border-radius: 6px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #334155;
+    color: white;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.topbar {
+    background: white;
+    padding: 22px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.topbar h1 {
+    font-size: 24px;
+}
+
+.content {
+    padding: 30px;
+}
+
+.toolbar,
+.filter {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+input {
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #2563eb;
+}
+
+#searchInput {
+    flex: 1;
+    min-width: 200px;
+}
+
+button {
+    border: none;
+    padding: 11px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #2563eb;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+#resetBtn {
+    background: #64748b;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    overflow-x: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #f8fafc;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn {
+    background: #e99b16;
+}
+
+.delete-btn {
+    background: #dc2626;
+}
+
+.error-message {
+    color: #dc2626;
+    padding: 15px;
+}

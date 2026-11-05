@@ -26,37 +26,42 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            JwtAuthenticationFilter jwtAuthenticationFilter
-    ) throws Exception {
+            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())
 
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                )
-            )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/register",
-                    "/api/auth/login"
-                ).permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        // Trang Admin và tài nguyên giao diện
+                        .requestMatchers(
+                                "/admin/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**")
+                        .permitAll()
 
-                .requestMatchers("/api/products/**").permitAll()
+                        // API đăng nhập và đăng ký
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login")
+                        .permitAll()
 
-                .anyRequest().authenticated()
-            )
+                        // API sản phẩm
+                        .requestMatchers("/api/products/**").permitAll()
 
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+                        // Các API khác cần xác thực
+                        .anyRequest().authenticated())
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

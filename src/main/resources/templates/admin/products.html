@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý sản phẩm</title>
+
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+    <div class="admin-container">
+
+        <aside class="sidebar">
+            <h2>Online Shop</h2>
+
+            <nav>
+                <a href="#" class="active">Quản lý sản phẩm</a>
+                <a href="#">Quản lý danh mục</a>
+                <a href="#">Quản lý đơn hàng</a>
+                <a href="#">Quản lý người dùng</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <h1>Quản lý sản phẩm</h1>
+                <span>Admin</span>
+            </header>
+
+            <section class="content">
+
+                <div class="toolbar">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Tìm kiếm sản phẩm..."
+                    >
+
+                    <button id="addProductBtn">
+                        + Thêm sản phẩm
+                    </button>
+                </div>
+
+                <div class="filter">
+                    <input
+                        type="number"
+                        id="minPrice"
+                        placeholder="Giá thấp nhất"
+                    >
+
+                    <input
+                        type="number"
+                        id="maxPrice"
+                        placeholder="Giá cao nhất"
+                    >
+
+                    <button id="filterBtn">Lọc</button>
+                    <button id="resetBtn">Làm mới</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Danh mục</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="productTableBody">
+                            <!-- JavaScript sẽ hiển thị dữ liệu tại đây -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script th:src="@{/js/admin.js}"></script>
+</body>
+</html>
