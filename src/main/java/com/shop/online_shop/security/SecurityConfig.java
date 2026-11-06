@@ -39,24 +39,26 @@ public class SecurityConfig {
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
                 .authorizeHttpRequests(auth -> auth
-                        // Trang Admin và tài nguyên giao diện
+                        // Trang chủ, trang Admin và tài nguyên giao diện
                         .requestMatchers(
+                                "/",
                                 "/admin/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**")
-                        .permitAll()
+                                "/images/**",
+                                "/favicon.ico",
+                                "/products",
+                                "/products/**"
+                        ).permitAll()
 
-                        // API đăng nhập và đăng ký
+                        // API công khai
                         .requestMatchers(
                                 "/api/products/**",
-                                "/api/categories/**")
-                        .permitAll()
+                                "/api/categories/**",
+                                "/api/auth/**"
+                        ).permitAll()
 
-                        // API sản phẩm
-                        .requestMatchers("/api/products/**").permitAll()
-
-                        // Các API khác cần xác thực
+                        // Các API còn lại cần xác thực JWT
                         .anyRequest().authenticated()
                 )
 

@@ -32,6 +32,31 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> searchAndFilter(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        // Chuẩn hóa từ khóa tìm kiếm
+        if (keyword != null && keyword.trim().isEmpty()) {
+            keyword = null;
+        }
+
+        return productRepository.searchAndFilter(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice
+        );
+    }
+
+    @Override
     public List<Product> searchProducts(String keyword) {
         return productRepository
                 .findByNameContainingIgnoreCase(keyword);
