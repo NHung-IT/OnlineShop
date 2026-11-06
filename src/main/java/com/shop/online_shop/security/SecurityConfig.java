@@ -1,6 +1,7 @@
 
 package com.shop.online_shop.security;
 
+import com.shop.online_shop.repository.UserRepository;
 import com.shop.online_shop.service.JwtService;
 
 import org.springframework.context.annotation.Bean;
@@ -19,8 +20,10 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtService jwtService) {
-        return new JwtAuthenticationFilter(jwtService);
+            JwtService jwtService,
+            UserRepository userRepository) {
+
+        return new JwtAuthenticationFilter(jwtService, userRepository);
     }
 
     @Bean
@@ -29,40 +32,48 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
-                .authorizeHttpRequests(auth -> auth
-                        // Trang Admin và tài nguyên giao diện
-                        .requestMatchers(
-                                "/admin/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**")
-                        .permitAll()
+            .authorizeHttpRequests(auth -> auth
 
-                        // API đăng nhập và đăng ký
-                        .requestMatchers(
-                                "/api/products/**",
-                                "/api/categories/**")
-                        .permitAll()
+                // Trang Admin và tài nguyên giao diện
+                .requestMatchers(
+                    "/admin/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**"
+                ).permitAll()
 
-                        // API sản phẩm
-                        .requestMatchers("/api/products/**").permitAll()
+                // API đăng ký và đăng nhập
+                .requestMatchers(
+                    "/api/auth/register",
+                    "/api/auth/login"
+                ).permitAll()
 
-                        // Các API khác cần xác thực
-                        .anyRequest().authenticated()
-                )
+                // API Product và Category: tạm giữ nguyên
+                .requestMatchers(
+                    "/api/products/**",
+                    "/api/categories/**"
+                ).permitAll()
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                // Các API quản trị trong tương lai
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                // Các API còn lại yêu cầu đăng nhập
+                .anyRequest().authenticated()
+            )
+
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
