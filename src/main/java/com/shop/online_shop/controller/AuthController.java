@@ -7,6 +7,8 @@ import com.shop.online_shop.entity.User;
 import com.shop.online_shop.service.AuthService;
 import com.shop.online_shop.service.JwtService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +25,14 @@ public class AuthController {
     public AuthController(
             AuthService authService,
             JwtService jwtService) {
+
         this.authService = authService;
         this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
-            @RequestBody RegisterRequest request) {
+            @Valid @RequestBody RegisterRequest request) {
 
         try {
             User user = authService.register(request);
@@ -39,7 +42,8 @@ public class AuthController {
                     "message", "Đăng ký tài khoản thành công!",
                     "userId", user.getId(),
                     "fullName", user.getFullName(),
-                    "email", user.getEmail()
+                    "email", user.getEmail(),
+                    "role", user.getRole()
                 )
             );
 
@@ -52,33 +56,34 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request) {
 
         try {
             User user = authService.login(
-                    request.getEmail(),
-                    request.getPassword()
+                request.getEmail(),
+                request.getPassword()
             );
 
             // Tạo JWT sau khi đăng nhập thành công
             String accessToken = jwtService.generateToken(
-                    user.getEmail()
+                user.getEmail()
             );
 
             return ResponseEntity.ok(
-                    Map.of(
-                            "message", "Đăng nhập thành công!",
-                            "userId", user.getId(),
-                            "fullName", user.getFullName(),
-                            "email", user.getEmail(),
-                            "accessToken", accessToken,
-                            "tokenType", "Bearer"
-                    )
+                Map.of(
+                    "message", "Đăng nhập thành công!",
+                    "userId", user.getId(),
+                    "fullName", user.getFullName(),
+                    "email", user.getEmail(),
+                    "role", user.getRole(),
+                    "accessToken", accessToken,
+                    "tokenType", "Bearer"
+                )
             );
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of("message", e.getMessage())
+                Map.of("message", e.getMessage())
             );
         }
     }

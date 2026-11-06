@@ -34,10 +34,13 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
 
-        // 3. Mã hóa mật khẩu
+        // 3. Thiết lập vai trò mặc định
+        user.setRole("USER");
+
+        // 4. Mã hóa mật khẩu
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // 4. Lưu tài khoản vào database
+        // 5. Lưu tài khoản vào database
         return userRepository.save(user);
     }
 
