@@ -24,6 +24,9 @@ public class User {
 
     private String phone;
 
+    @Column(nullable = false, length = 20)
+    private String role = "USER";
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -32,9 +35,11 @@ public class User {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
-    }
 
-    // Getters và Setters
+        if (role == null || role.isBlank()) {
+            role = "USER";
+        }
+    }
 
     public Long getId() {
         return id;
@@ -74,6 +79,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public LocalDateTime getCreatedAt() {

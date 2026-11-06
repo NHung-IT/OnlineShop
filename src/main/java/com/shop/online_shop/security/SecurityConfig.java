@@ -1,6 +1,7 @@
 
 package com.shop.online_shop.security;
 
+import com.shop.online_shop.repository.UserRepository;
 import com.shop.online_shop.service.JwtService;
 
 import org.springframework.context.annotation.Bean;
@@ -17,56 +18,63 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @EnableWebSecurity
 public class SecurityConfig {
 
-        @Bean
-        public JwtAuthenticationFilter jwtAuthenticationFilter(
-                        JwtService jwtService) {
-                return new JwtAuthenticationFilter(jwtService);
-        }
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtService jwtService,
+            UserRepository userRepository) {
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(
-                        HttpSecurity http,
-                        JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        return new JwtAuthenticationFilter(jwtService, userRepository);
+    }
 
-                http
-                                .csrf(csrf -> csrf.disable())
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        http
+            .csrf(csrf -> csrf.disable())
 
-                                .exceptionHandling(exception -> exception
-                                                .authenticationEntryPoint(
-                                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                                .authorizeHttpRequests(auth -> auth
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
-                                                // Trang Admin và tài nguyên giao diện
-                                                .requestMatchers(
-                                                                "/admin/**",
-                                                                "/css/**",
-                                                                "/js/**",
-                                                                "/images/**")
-                                                .permitAll()
+            .authorizeHttpRequests(auth -> auth
 
-                                                // API đăng ký và đăng nhập
-                                                .requestMatchers(
-                                                                "/api/auth/register",
-                                                                "/api/auth/login")
-                                                .permitAll()
+                // Trang Admin và tài nguyên giao diện
+                .requestMatchers(
+                    "/admin/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**"
+                ).permitAll()
 
-                                                // API Product và Category
-                                                .requestMatchers(
-                                                                "/api/products/**",
-                                                                "/api/categories/**")
-                                                .permitAll()
+                // API đăng ký và đăng nhập
+                .requestMatchers(
+                    "/api/auth/register",
+                    "/api/auth/login"
+                ).permitAll()
 
-                                                // Các API khác yêu cầu đăng nhập
-                                                .anyRequest().authenticated())
+                // API Product và Category: tạm giữ nguyên
+                .requestMatchers(
+                    "/api/products/**",
+                    "/api/categories/**"
+                ).permitAll()
 
-                                .addFilterBefore(
-                                                jwtAuthenticationFilter,
-                                                UsernamePasswordAuthenticationFilter.class);
+                // Các API quản trị trong tương lai
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                return http.build();
-        }
+                // Các API còn lại yêu cầu đăng nhập
+                .anyRequest().authenticated()
+            )
+
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
 }
