@@ -4,6 +4,7 @@ package com.shop.online_shop.security;
 import com.shop.online_shop.repository.UserRepository;
 import com.shop.online_shop.service.JwtService;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -14,67 +15,96 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtService jwtService,
-            UserRepository userRepository) {
+        @Bean
+        public JwtAuthenticationFilter jwtAuthenticationFilter(
+                        JwtService jwtService,
+                        UserRepository userRepository) {
 
-        return new JwtAuthenticationFilter(jwtService, userRepository);
-    }
+                return new JwtAuthenticationFilter(jwtService, userRepository);
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(
+                        HttpSecurity http,
+                        JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
+                http
+                                .csrf(csrf -> csrf.disable())
 
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(
+                                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                                                .accessDeniedHandler((request, response, ex) -> {
+                                                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                                        response.setContentType("application/json;charset=UTF-8");
+                                                        response.getWriter().write(
+                                                                        "{\"status\":403,\"error\":\"Forbidden\",\"message\":\"Bạn không có quyền truy cập chức năng này!\"}");
+                                                }))
 
-            .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth
+                                                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                                                // Trang Admin và tài nguyên giao diện
+                                                .requestMatchers(
+                                                                "/admin/**",
+                                                                "/css/**",
+                                                                "/js/**",
+                                                                "/images/**")
+                                                .permitAll()
 
-                // Trang Admin và tài nguyên giao diện
-                .requestMatchers(
-                    "/admin/**",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
-                ).permitAll()
+                                                // API đăng ký và đăng nhập
+                                                .requestMatchers(
+                                                                "/api/auth/register",
+                                                                "/api/auth/login")
+                                                .permitAll()
 
-                // API đăng ký và đăng nhập
-                .requestMatchers(
-                    "/api/auth/register",
-                    "/api/auth/login"
-                ).permitAll()
+                                                // Product và Category: chỉ ADMIN được thêm
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/products/**",
+                                                                "/api/categories/**")
+                                                .hasRole("ADMIN")
 
-                // API Product và Category: tạm giữ nguyên
-                .requestMatchers(
-                    "/api/products/**",
-                    "/api/categories/**"
-                ).permitAll()
+                                                // Chỉ ADMIN được cập nhật
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
+                                                                "/api/products/**",
+                                                                "/api/categories/**")
+                                                .hasRole("ADMIN")
 
-                // Các API quản trị trong tương lai
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // Chỉ ADMIN được xóa
+                                                .requestMatchers(
+                                                                HttpMethod.DELETE,
+                                                                "/api/products/**",
+                                                                "/api/categories/**")
+                                                .hasRole("ADMIN")
 
-                // Các API còn lại yêu cầu đăng nhập
-                .anyRequest().authenticated()
-            )
+                                                // Mọi người đều được xem
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/products/**",
+                                                                "/api/categories/**")
+                                                .permitAll()
 
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+                                                // Các API quản trị trong tương lai
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-        return http.build();
-    }
+                                                // Các API còn lại yêu cầu đăng nhập
+                                                .anyRequest().authenticated())
+
+                                .addFilterBefore(
+                                                jwtAuthenticationFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 }
