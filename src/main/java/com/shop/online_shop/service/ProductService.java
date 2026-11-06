@@ -13,6 +13,9 @@ public interface ProductService {
     // Lấy sản phẩm theo ID
     Product getProductById(Long id);
 
+    // Lọc sản phẩm theo danh mục
+    List<Product> getProductsByCategory(Long categoryId);
+
     // Tìm kiếm sản phẩm theo tên
     List<Product> searchProducts(String keyword);
 
@@ -27,4 +30,12 @@ public interface ProductService {
 
     // Xóa sản phẩm
     void deleteProduct(Long id);
+
+    // Tìm kiếm và lọc sản phẩm theo nhiều điều kiện
+    List<Product> searchAndFilter(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice
+    );
 }
